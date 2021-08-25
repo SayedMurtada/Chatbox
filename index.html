@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+
+    <title>Chatbox</title>
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/JavaScript">
+        let socket = io();
+        let cname = "Empty";
+        // to send the message to server
+        socket.emit("obj", "Hello Server I am SocketIO.Client");
+        function send(){
+            // receive the value of textfield or textarea
+            // using dom with getElementbyId()
+            // socket.emit("obj", value);
+            // socket.emit("obj", {name:"raj", msg:"Hello"})
+            var nmessage = document.getElementById("usermessage").value;
+            let ndate = new Date().toLocaleString('en-US');
+            if(nmessage != ""){
+                socket.emit("data",{name:cname, message:nmessage, Time:ndate});
+                let oldHTML =  document.getElementById("messageslist").innerHTML.toString();
+                let newHTML = oldHTML +`\n<li class="list-group-item">
+                    <h3 id="msgUserName">${cname}</h3>
+                      <label id="msgContent">${nmessage}</label><br/>
+                      <label id="msgTime" >${ndate}</label>
+                    </li>`;
+
+                document.getElementById("messageslist").innerHTML = newHTML;
+                document.getElementById("usermessage").value = "";
+            }
+        }
+
+        socket.on("currentUserName", (uname)=>{
+            cname = uname.name;
+            document.getElementById("msgUserName").innerHTML = cname;
+        });
+    </script>
+</head>
+<body>
+    <h1>Welcome To My Chatbox</h1>
+    <div id="content" class="card align-self-lg-auto" style="width: 40%; align-self: center; margin: auto;">
+        <div id="classlist" class ="row ">
+            <h2>Messages here</h2>
+            <div class="card" style="width: 18rem; align-self: auto; margin: auto;">
+                <ul class="list-group list-group-flush" id="messageslist">
+                  <li class="list-group-item">
+                      <h3 id="msgUserName">User Name</h3>
+                      <label id="msgContent">Message</label><br/>
+                      <label id="msgTime" >time</label>
+                    </li>
+                </ul>
+              </div>
+        </div>
+
+        <hr/>
+
+        <form action="#" onsubmit= "send();" id="userinput" class="form align-self-center" style="align-content: auto;">
+                <input type="text" id="usermessage" placeholder="Write your message here"/>
+                <input type="button" name="Send" value ="Send" class="btn btn-success" onclick="send()"/>
+        </form>
+    </div>
+</body>
+<script type="text/JavaScript">
+    socket.emit("getUserName");
+</script>
+
+</html>
